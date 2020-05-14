@@ -1,6 +1,6 @@
 # Fungi vesicles project
 
-Collaboration with Quimi Vidaurre Montoya
+Collaboration with Quimi Vidaurre Montoya, Ricardo Kriebel
 
 # Data
 
@@ -18,4 +18,11 @@ and then uploaded to a google shared drive.
 - long stem = conidiophores with one or multiple vesicles
 - Interest in different vesicule shapes (I-V in PDF `Escovopsis_Microscopic-structures.pdf`)
 - Some even present a shape like F (in PDF `Escovopsis_Microscopic-structures.pdf`)
+- Quimi will redo a divergence times tree with the subset of taxa
 
+
+# Scripts
+
+From Ricardo: 
+- [R Momocs](https://momx.github.io/Momocs/index.html)
+- `Escovopsis_vesicle_analysis.Rmd`

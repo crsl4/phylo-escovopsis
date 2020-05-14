@@ -1,6 +1,6 @@
 # Fungi vesicles project
 
-Collaboration with Quimi Vidaurre Montoya
+Collaboration with Quimi Vidaurre Montoya, Ricardo Kriebel
 
 Fungal groups have different vesicle shapes (spherical vs narrow). We want to understand the evolution of vesicle shapes on the tree (comparative methods), and test the hypothesis that the vesicles are disappearing (mutating into the conidiophores) and the phialide are moving to the hypha.
 
