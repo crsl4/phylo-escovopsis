@@ -26,3 +26,19 @@ and then uploaded to a google shared drive.
 From Ricardo: 
 - [R Momocs](https://momx.github.io/Momocs/index.html)
 - `Escovopsis_vesicle_analysis.Rmd`
+
+# Minutes meeting 5/22
+- In paper `2015_Meirelles_Shared_Escovopsisparasites.pdf`, they use a binary trait for ancestral reconstruction: cylindrical/globose
+- New info in our analysis:
+    - samples from broad geographical distribution
+    - co-evolution with ants? not according to estimated divergence times
+    - fungi group with information on vesicles => hypothesis: biological pressure to lose the vesicles
+    - hypothesis: "esporos" moving from vesicle to conidiophore
+- Unlike existing paper:
+    - we have a bigger tree (with 5 markers, unlike only one)
+    - we do not want to binarize trait
+
+Next steps:
+- Claudia: Create dropbox folder with data, send invitation to gmail
+- Quimi will put the estimated tree in the folder
+- Ricardo+Quimi: Work on drawing the vesicles; Quimi will download and install GIMP
