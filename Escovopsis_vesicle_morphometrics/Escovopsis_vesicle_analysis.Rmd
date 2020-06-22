@@ -11,7 +11,7 @@ fontsize: 12pt
 
 \pagebreak
 
-```{r, echo=T, message=FALSE, warning=FALSE}
+```{r, echo=F, message=FALSE, warning=FALSE}
 library(knitr)
 library(dplyr)
 library(Momocs)
@@ -19,27 +19,7 @@ library(magick)
 library(reshape2)
 ```
 
-# Dibujos de la publicación
-
-```{r, fig.height=4, fig.width=7, fig.align='center',echo=T, cache=F, message=FALSE, warning=FALSE}
-image_read("Escovopsis_Microscopic-structures.jpg") %>% 
-  as.raster() %>% 
-  plot()
-```
-
-# Siluetas hechas de los dibujos
-
-```{r, fig.height=4, fig.width=7, fig.align='center',echo=T, cache=F, message=FALSE, warning=FALSE}
-image_read("Escovopsis_Microscopic-structures_outlines.jpg") %>% 
-  as.raster() %>% 
-  plot()
-```
-
-\pagebreak 
-
-Importamos las siluetas cortadas
-
-```{r, label="import vesicles", echo=T, cache=T, message=FALSE, warning=FALSE,results='hide'}
+```{r, label="import vesicles", echo=F, cache=T, message=FALSE, warning=FALSE,results='hide'}
 # Importamos las siluetas como coordenadas
 jpg.list <- list.files("outlines",pattern = ".jpg")
 coords <- import_jpg(jpg.paths=paste0("outlines","/", jpg.list),
@@ -49,33 +29,72 @@ outlines <- Out(coords)
 # Les limpiamos el nombre
 names_outlines <- names(outlines) %>% data.frame() %>% setNames("image")
 names_outlines <- colsplit(names_outlines$image,pattern="_",
-                           names=c("letter","shape"))
+                           names=c("strain","number"))
+
+names_outlines$strain <- as.factor(names_outlines$strain)
 
 # Y les asignamos el nombre limpio 
-names(outlines) <- names_outlines$shape
+names(outlines) <- names_outlines$strain
 
 # Y la letra y nombre limpio en el campo de los grupos para facilitar los gráficos
 outlines$fac <- names_outlines
 ```
 
-# Los especímenes dentro de R
+# Los especímenes 
 
-```{r, fig.height=4.5, fig.width=4.5, fig.align='center', echo=T, cache=FALSE, message=FALSE, warning=FALSE}
-panel(outlines, names = "shape")
+```{r, fig.height=10, fig.width=10, fig.align='center', echo=F, cache=FALSE, message=FALSE, warning=FALSE}
+#panel(outlines, names = "strain")
+panel(outlines)
 ```
 
-\pagebreak
+```{r, label="elliptic Fourier analysis", echo=F, cache=FALSE, message=FALSE, warning=FALSE, results='hide'}
+lapply(outlines$coo, coo_interpolate, n=200) -> outlines$coo
+coo_center(outlines) -> outlines
+lapply(outlines$coo, FUN=function(x)(coo_scale(x, max(x[,2]/1000)))) -> outlines$coo
+coo_scale(outlines, 1000) -> outlines
 
-Here we do the elliptic Fourier analysis, PCA of the results and look at the percent explained by each Principal Component
+#
 
-```{r, label="elliptic Fourier analysis", echo=T, cache=FALSE, message=FALSE, warning=FALSE}
+ldks2 <- vector("list", length=length(outlines$coo))
+names(ldks2) <- names(outlines$coo)
+coo_centpos(outlines) -> centroids
+for (i in 1:length(outlines)) {
+  ldk <- numeric(4)
+  outlines$coo[[i]] -> x
+  which.min(x[,1]) -> min.x
+  which.max(x[,1]) -> max.x
+  which.min(x[,2]) -> min.y
+  which.max(x[,2]) -> max.y
+  p <- c(centroids[i,1], min(x[,2]))
+  l <- apply(x, 1, function(y) sqrt(sum((p - y)^2)))
+  ldk[1] <- which.min(l)
+  p <- c(centroids[i,1], max(x[,2]))
+  l <- apply(x, 1, function(y) sqrt(sum((p - y)^2)))
+  ldk[2] <- which.min(l)
+  p <- c(min(x[,1]), centroids[i,2])
+  l <- apply(x, 1, function(y) sqrt(sum((p - y)^2)))
+  ldk[3] <- which.min(l)
+  p <- c(max(x[,1]), centroids[i,2])
+  l <- apply(x, 1, function(y) sqrt(sum((p - y)^2)))
+  ldk[4] <- which.min(l)
+  ldk -> ldks2[[i]]
+}
+outlines$ldk <- ldks2
+
+
+outlines <- coo_slide(outlines, ldk=1) 
+outlines <- fgProcrustes(outlines)
+
+
 efou_outlines <- efourier(outlines, norm=F, nb.h=32, smooth.it=1) 
-efou_outlines <- rm_sym(efou_outlines)
+#efou_outlines <- rm_sym(efou_outlines)
 pca_outlines <- PCA(efou_outlines)
 
 pc_contribution <- pca_outlines %>% summary()
 pc_contribution$importance[,1:3] %>% kable(caption = "PC contribution")
 ```
+
+\pagebreak
 
 Graphical representation of variation explained in each of the first three PC
 
@@ -83,31 +102,86 @@ Graphical representation of variation explained in each of the first three PC
 PCcontrib(pca_outlines, nax=c(1:3), sd.r = c(-1.5, -1, 0, 1, 1.5))
 ```
 
-\pagebreak
-
 # Morfoespacio
 
-```{r,fig.height=5, fig.width=7, fig.align='center', echo=T, cache=FALSE, message=FALSE, warning=FALSE}
+```{r,fig.height=4, fig.width=6, fig.align='center', echo=F, cache=FALSE, message=FALSE, warning=FALSE}
 plot_PCA(pca_outlines, morphospace=F, points=F,chull=F,eigen=F,
          zoom=0.85, center_origin = F,legend=F) %>%
-  layer_labelpoints() %>%
+#  layer_labelpoints() %>%
   layer_points(cex=1, transp=0.25) %>% 
   layer_box(border="black",lwd=2) %>%
   layer_axesvar() %>% 
   layer_morphospace_PCA(size=1, nr = 5, nc = 3, pos="range") %>% 
   layer_title("Morphospace of PC1-PC2 with theoretical 
               morphospace in the background")
-```
 
-\pagebreak
-
-```{r,fig.height=5, fig.width=7, fig.align='center', echo=T, cache=FALSE, message=FALSE, warning=FALSE}
 plot_PCA(pca_outlines, morphospace=F, points=F,chull=F,eigen=F,
          zoom=0.85, center_origin = F,legend=F) %>%
-  layer_labelpoints() %>%
+#  layer_labelpoints() %>%
+  layer_points(cex=0.5, transp=0.25) %>% 
   layer_box(border="black",lwd=2) %>%
   layer_axesvar() %>% 
-  layer_morphospace_PCA(size=1, nr = 5, nc = 3, pos="xy") %>% 
-  layer_title("Morphospace of PC1-PC2 with illustration of 
-  each specimen based on these two axes")
+  layer_morphospace_PCA(size=0.5,  pos="xy") %>% 
+  layer_title("Morphospace of PC1-PC2 with 
+  specimens in morphospace")
+
+plot_PCA(pca_outlines, ~strain, morphospace=F, points=F,chull=F,eigen=F,
+         zoom=0.85, center_origin = F,legend=F, axes=c(1,2)) %>%
+  layer_points(cex=0.5, transp=0.1) %>% 
+    layer_box(border="black",lwd=2) %>%
+    layer_axesvar %>% 
+    layer_morphospace_PCA(size=1, nr = 5, nc = 5, pos="range") %>% 
+    layer_ellipses() #%>%
+ #   layer_chull(lty=0) %>%
+ #   layer_chullfilled(alpha = 0.95) 
+
+plot_PCA(pca_outlines, ~strain, morphospace=F, points=F,chull=F,eigen=F,
+         zoom=0.85, center_origin = F,legend=F, axes=c(1,2)) %>%
+  layer_points(cex=0.2, transp=0.1) %>% 
+    layer_box(border="black",lwd=2) %>%
+    layer_axesvar %>% 
+    layer_morphospace_PCA(size=1, nr = 5, nc = 5, pos="range") %>% 
+    layer_chull(lty=1) %>%
+    layer_chullfilled(alpha = 0.85) 
+
+plot_PCA(pca_outlines, ~strain, morphospace=F, points=F,chull=F,eigen=F,
+         zoom=0.85, center_origin = F,legend=F, axes=c(1,2)) %>%
+  layer_points(cex=0.2, transp=0.1) %>% 
+    layer_box(border="black",lwd=2) %>%
+    layer_axesvar %>% 
+    layer_morphospace_PCA(size=1, nr = 5, nc = 5, pos="range") %>% 
+    layer_chull(lty=1) 
+```
+
+# Morfoespacio con el promedio de cada especie
+
+```{r, label="elliptic Fourier analysis mean species", echo=F, cache=FALSE, message=FALSE, warning=FALSE, results='hide'}
+efou_mean <- MSHAPES(efou_outlines, 'strain') 
+pca_strains <- PCA(efou_mean$Coe)
+```
+
+
+```{r,fig.height=4, fig.width=6, fig.align='center', echo=F, cache=FALSE, message=FALSE, warning=FALSE}
+plot_PCA(pca_strains, morphospace=F, points=F,chull=F,eigen=F,
+         zoom=0.85, center_origin = F,legend=F) %>%
+#  layer_labelpoints() %>%
+  layer_points(cex=1, transp=0.25) %>% 
+  layer_box(border="black",lwd=2) %>%
+  layer_axesvar() %>% 
+  layer_morphospace_PCA(size=1, nr = 5, nc = 3, pos="range") %>% 
+  layer_title("Morphospace of PC1-PC2 with theoretical 
+              morphospace in the background")
+
+plot_PCA(pca_strains, morphospace=F, points=F,chull=F,eigen=F,
+         zoom=0.85, center_origin = F,legend=F) %>%
+#  layer_labelpoints() %>%
+  layer_points(cex=1, transp=0.25) %>% 
+  layer_box(border="black",lwd=2) %>%
+  layer_axesvar() %>% 
+  layer_morphospace_PCA(size=1,  pos="xy") 
+
+```
+
+```{r,fig.height=4, fig.width=6, fig.align='center', echo=F, cache=FALSE, message=FALSE, warning=FALSE}
+data <- as_df(pca_outlines)
 ```
