@@ -36,8 +36,13 @@ names_outlines$strain <- as.factor(names_outlines$strain)
 # Y les asignamos el nombre limpio 
 names(outlines) <- names_outlines$strain
 
+# Importamos grupos
+
+groups <- read.csv("data/group.csv")
+groups <- left_join(names_outlines,groups,"strain")
+
 # Y la letra y nombre limpio en el campo de los grupos para facilitar los gráficos
-outlines$fac <- names_outlines
+outlines$fac <- groups
 ```
 
 # Los especímenes 
@@ -102,7 +107,7 @@ Graphical representation of variation explained in each of the first three PC
 PCcontrib(pca_outlines, nax=c(1:3), sd.r = c(-1.5, -1, 0, 1, 1.5))
 ```
 
-# Morfoespacio
+# Morfoespacio crudo y por strain
 
 ```{r,fig.height=4, fig.width=6, fig.align='center', echo=F, cache=FALSE, message=FALSE, warning=FALSE}
 plot_PCA(pca_outlines, morphospace=F, points=F,chull=F,eigen=F,
@@ -153,6 +158,78 @@ plot_PCA(pca_outlines, ~strain, morphospace=F, points=F,chull=F,eigen=F,
     layer_chull(lty=1) 
 ```
 
+# Morfoespacio con grupos
+
+## Conidia production
+
+```{r,fig.height=4, fig.width=6, fig.align='center', echo=F, cache=FALSE, message=FALSE, warning=FALSE}
+plot_PCA(pca_outlines, ~Conidia_production, morphospace=F, points=F,chull=F,eigen=F,
+         zoom=0.85, center_origin = F,legend=F, axes=c(1,2)) %>%
+  layer_points(cex=0.5, transp=0.1) %>% 
+    layer_box(border="black",lwd=2) %>%
+    layer_axesvar %>% 
+    layer_morphospace_PCA(size=1, nr = 5, nc = 5, pos="range") %>% 
+    layer_ellipses() %>% 
+  layer_legend() 
+
+plot_PCA(pca_outlines, ~Conidia_production, morphospace=F, points=F,chull=F,eigen=F,
+         zoom=0.85, center_origin = F,legend=F, axes=c(1,2)) %>%
+  layer_points(cex=0.2, transp=0.1) %>% 
+    layer_box(border="black",lwd=2) %>%
+    layer_axesvar %>% 
+    layer_morphospace_PCA(size=1, nr = 5, nc = 5, pos="range") %>% 
+    layer_chull(lty=1) %>%
+    layer_chullfilled(alpha = 0.85) %>% 
+  layer_legend() 
+```
+
+## Vesicles per connidiophore
+
+```{r,fig.height=4, fig.width=6, fig.align='center', echo=F, cache=FALSE, message=FALSE, warning=FALSE}
+plot_PCA(pca_outlines, ~Vesicles, morphospace=F, points=F,chull=F,eigen=F,
+         zoom=0.85, center_origin = F,legend=F, axes=c(1,2)) %>%
+  layer_points(cex=0.5, transp=0.1) %>% 
+    layer_box(border="black",lwd=2) %>%
+    layer_axesvar %>% 
+    layer_morphospace_PCA(size=1, nr = 5, nc = 5, pos="range") %>% 
+    layer_ellipses() %>% 
+  layer_legend() 
+
+plot_PCA(pca_outlines, ~Vesicles, morphospace=F, points=F,chull=F,eigen=F,
+         zoom=0.85, center_origin = F,legend=F, axes=c(1,2)) %>%
+  layer_points(cex=0.2, transp=0.1) %>% 
+    layer_box(border="black",lwd=2) %>%
+    layer_axesvar %>% 
+    layer_morphospace_PCA(size=1, nr = 5, nc = 5, pos="range") %>% 
+    layer_chull(lty=1) %>%
+    layer_chullfilled(alpha = 0.85) %>% 
+  layer_legend() 
+```
+
+## Vesicles by growth
+
+```{r,fig.height=4, fig.width=6, fig.align='center', echo=F, cache=FALSE, message=FALSE, warning=FALSE}
+plot_PCA(pca_outlines, ~Growth, morphospace=F, points=F,chull=F,eigen=F,
+         zoom=0.85, center_origin = F,legend=F, axes=c(1,2)) %>%
+  layer_points(cex=0.5, transp=0.1) %>% 
+    layer_box(border="black",lwd=2) %>%
+    layer_axesvar %>% 
+    layer_morphospace_PCA(size=1, nr = 5, nc = 5, pos="range") %>% 
+    layer_ellipses() %>% 
+  layer_legend() 
+
+plot_PCA(pca_outlines, ~Growth, morphospace=F, points=F,chull=F,eigen=F,
+         zoom=0.85, center_origin = F,legend=F, axes=c(1,2)) %>%
+  layer_points(cex=0.2, transp=0.1) %>% 
+    layer_box(border="black",lwd=2) %>%
+    layer_axesvar %>% 
+    layer_morphospace_PCA(size=1, nr = 5, nc = 5, pos="range") %>% 
+    layer_chull(lty=1) %>%
+    layer_chullfilled(alpha = 0.85) %>% 
+  layer_legend() 
+```
+
+\pagebreak
 # Morfoespacio con el promedio de cada especie
 
 ```{r, label="elliptic Fourier analysis mean species", echo=F, cache=FALSE, message=FALSE, warning=FALSE, results='hide'}
@@ -182,6 +259,78 @@ plot_PCA(pca_strains, morphospace=F, points=F,chull=F,eigen=F,
 
 ```
 
+
+## Conidia production
+
 ```{r,fig.height=4, fig.width=6, fig.align='center', echo=F, cache=FALSE, message=FALSE, warning=FALSE}
+
+plot_PCA(pca_strains, ~Conidia_production, morphospace=F, points=F,chull=F,eigen=F,
+         zoom=0.85, center_origin = F,legend=F, axes=c(1,2)) %>%
+  layer_points(cex=0.5, transp=0.1) %>% 
+    layer_box(border="black",lwd=2) %>%
+    layer_axesvar %>% 
+    layer_morphospace_PCA(size=1, nr = 5, nc = 5, pos="range") %>% 
+    layer_ellipses() %>% 
+  layer_legend() 
+
+plot_PCA(pca_strains, ~Conidia_production, morphospace=F, points=F,chull=F,eigen=F,
+         zoom=0.85, center_origin = F,legend=F, axes=c(1,2)) %>%
+  layer_points(cex=0.2, transp=0.1) %>% 
+    layer_box(border="black",lwd=2) %>%
+    layer_axesvar %>% 
+    layer_morphospace_PCA(size=1, nr = 5, nc = 5, pos="range") %>% 
+    layer_chull(lty=1) %>%
+    layer_chullfilled(alpha = 0.85) %>% 
+  layer_legend() 
+```
+
+## Vesicles per connidiophore
+
+```{r,fig.height=4, fig.width=6, fig.align='center', echo=F, cache=FALSE, message=FALSE, warning=FALSE}
+plot_PCA(pca_strains, ~Vesicles, morphospace=F, points=F,chull=F,eigen=F,
+         zoom=0.85, center_origin = F,legend=F, axes=c(1,2)) %>%
+  layer_points(cex=0.5, transp=0.1) %>% 
+    layer_box(border="black",lwd=2) %>%
+    layer_axesvar %>% 
+    layer_morphospace_PCA(size=1, nr = 5, nc = 5, pos="range") %>% 
+    layer_ellipses() %>% 
+  layer_legend() 
+
+plot_PCA(pca_strains, ~Vesicles, morphospace=F, points=F,chull=F,eigen=F,
+         zoom=0.85, center_origin = F,legend=F, axes=c(1,2)) %>%
+  layer_points(cex=0.2, transp=0.1) %>% 
+    layer_box(border="black",lwd=2) %>%
+    layer_axesvar %>% 
+    layer_morphospace_PCA(size=1, nr = 5, nc = 5, pos="range") %>% 
+    layer_chull(lty=1) %>%
+    layer_chullfilled(alpha = 0.85) %>% 
+  layer_legend() 
+```
+
+## Vesicles by growth
+
+```{r,fig.height=4, fig.width=6, fig.align='center', echo=F, cache=FALSE, message=FALSE, warning=FALSE}
+plot_PCA(pca_strains, ~Growth, morphospace=F, points=F,chull=F,eigen=F,
+         zoom=0.85, center_origin = F,legend=F, axes=c(1,2)) %>%
+  layer_points(cex=0.5, transp=0.1) %>% 
+    layer_box(border="black",lwd=2) %>%
+    layer_axesvar %>% 
+    layer_morphospace_PCA(size=1, nr = 5, nc = 5, pos="range") %>% 
+    layer_ellipses() %>% 
+  layer_legend() 
+
+plot_PCA(pca_strains, ~Growth, morphospace=F, points=F,chull=F,eigen=F,
+         zoom=0.85, center_origin = F,legend=F, axes=c(1,2)) %>%
+  layer_points(cex=0.2, transp=0.1) %>% 
+    layer_box(border="black",lwd=2) %>%
+    layer_axesvar %>% 
+    layer_morphospace_PCA(size=1, nr = 5, nc = 5, pos="range") %>% 
+    layer_chull(lty=1) %>%
+    layer_chullfilled(alpha = 0.85) %>% 
+  layer_legend() 
+```
+
+
+```{r,fig.height=4, fig.width=6, fig.align='center', echo=F, cache=FALSE, message=FALSE, warning=FALSE,results="hide"}
 data <- as_df(pca_outlines)
 ```
